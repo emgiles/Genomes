@@ -13,46 +13,45 @@ Run assembly using fastq files using Canu
 .report gives statistics of the raw data and final assembly including N50s and length
 ###### Check assembly with QUAST
 ```conda activate quast_purgedups_minimap```
-```nohup quast -r /media/pablo/data1/emily/genomes/SG1_Dovetail_assembly/Scurria_scurra_uni1728-mb-hirise-3bs35_08-29-2020__hic_output.fasta -s -e --large -k -f -b VG2_canu_assembly.contigs.fasta & ```
+```nohup quast -r /{PWD}/Sscurra_genome.fasta -s -e --large -k -f -b VG2_canu_assembly.contigs.fasta & ```
 Compare results to S. scurra assembly
 Output is report.pdf
 
 ###### Check assembly with BUSCO
 This example uses the mollusca database from ncbi. Also try with metazoa db.
 ```conda activate busco```
-```nohup busco -o VG2_busco_mollusca -i /media/pablo/data1/emily/genomes/VG1_assembly/VG2_canu_assembly.contigs.fasta -l mollusca_odb10 -m genome & ```
+```nohup busco -o VG2_busco_mollusca -i /{PWD}/VG2_canu_assembly.contigs.fasta -l mollusca_odb10 -m genome & ```
 
 ### GENOME ASSEMBLY POST-PROCESSING
 ##### Remove duplications with purge_dups
 See [PIPELINE INSTRUCTIONS in github](https://github.com/dfguan/purge_dups). 
-Note, this software is difficult to install and run due to poor documentation online.
+Note, this software is difficult to install and run due to minimal documentation online.
 ```conda activate quast_purgedups_minimap```
 
 ##### Check purged assembly with QUAST
 ```conda activate quast_purgedups_minimap```
-```/home/pablo/anaconda2/envs/emily/bin/quast -r /media/pablo/data1/emily/genomes/SG1_Dovetail_assembly/Scurria_scurra_uni1728-mb-hirise-3bs35_08-29-2020__hic_output.fasta -s -e --large -k VG2_canu_purged_purged.fa```
+```/home/pablo/anaconda2/envs/emily/bin/quast -r /{PWD}/Sscurra_genome.fasta -s -e --large -k VG2_canu_purged_purged.fa```
 comparing to S. scurra
 output is report.pdf
 
 ##### Check purged assembly with BUSCO
 ```conda activate busco```
-```nohup busco -o VG2_busco_mollusca -i /media/pablo/data1/emily/genomes/VG1_assembly/VG2_canu_purged_purged.fa -l mollusca_odb10 -m genome &```
+```nohup busco -o VG2_busco_mollusca -i /{PWD}/VG2_canu_purged_purged.fa -l mollusca_odb10 -m genome &```
 using mollusca db
 
 ##### Scaffold with RAGTAG
 ```conda activate ragtag_blobtools_bwa```
-```nohup ragtag.py scaffold /media/pablo/data1/emily/genomes/SG1_Dovetail_assembly/Scurria_scurra_uni1728-mb-hirise-3bs35_08-29-2020__hic_output.fasta /media/pablo/data1/emily/genomes/VG1_assembly/purge_dups_21oct2022/purged.fa &```
+```nohup ragtag.py scaffold /{PWD}/Sscurra_genome.fasta /{PWD}/purged.fa &```
 using S. scurra as a reference
 
 ###### Checking purged scaffolded assembly with QUAST
 ```conda activate quast_purgedups_minimap```
-```nohup quast -r /media/pablo/data1/emily/genomes/SG1_Dovetail_assembly/Scurria_scurra_uni1728-mb-hirise-3bs35_08-29-2020__hic_output.fasta -e --large -k -f -b /media/pablo/data1/emily/genomes/VG1_assembly/RAGTAG4/ragtag_output/ragtag.scaffold.fasta &```
+```nohup quast -r /{PWD}/Sscurra_genome.fasta -e --large -k -f -b /{PWD}/ragtag.scaffold.fasta &```
 
 ###### Checking purged scaffolded assembly with BUSCO
 ```conda activate busco```
-```nohup busco -o VG2_busco_mollusca -i /media/pablo/data1/emily/genomes/VG1_assembly/VG2_canu_purged_purged_ragtag.scaffold.fasta -l mollusca_odb10 -m genome &```
-(busco) pablo@pablo-Precision-5820-Tower:/media/pablo/data1/emily/genomes/VG1_assembly/QUAST_purged_woe_scaffolded/quast_results/results_2022_10_27_12_12_08/busco_stats$ 
-```nohup busco -o VG2_busco_metazoa -i /media/pablo/data1/emily/genomes/VG1_assembly/VG2_canu_purged_purged_ragtag.scaffold.fasta -l metazoa_odb10 -m genome &```
+```nohup busco -o VG2_busco_mollusca -i /{PWD}/VG2_canu_purged_purged_ragtag.scaffold.fasta -l mollusca_odb10 -m genome &``` 
+```nohup busco -o VG2_busco_metazoa -i /{PWD}/VG2_canu_purged_purged_ragtag.scaffold.fasta -l metazoa_odb10 -m genome &```
 
 ### TRANSCRIPTOME AND PROTEIN LIST RECOVERY
 ##### Upload transcriptomes and check with busco
