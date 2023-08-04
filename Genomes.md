@@ -56,7 +56,7 @@ using S. scurra as a reference
 ### TRANSCRIPTOME AND PROTEIN LIST RECOVERY
 ##### Upload transcriptomes and check with busco
 ```conda activate busco```
-```nohup busco -o SV_trinity_metazoa -i /media/pablo/data1/emily/genomes/VG1_assembly/transcriptomes/Ensamble_transcriptoma_SViridula.fasta -l metazoa_odb10 -m transcriptome &```
+```nohup busco -o SV_trinity_metazoa -i /{PWD}/Ensamble_transcriptoma_SViridula.fasta -l metazoa_odb10 -m transcriptome &```
 Should have high busco completeness. Duplications can be moderately high.
 ##### Check quality of raw reads
 ```conda activate fastqc```
@@ -69,9 +69,9 @@ Example command:
 GMAP recomends creating objects for -d and -D and dbfasta. This did not work so I ran with full paths.
 ###### Build GMAP database
 ```conda activate gmap```
-```gmap_build -d viridula_masked -D /media/pablo/data1/emily/genomes/VG1_assembly/gmap/ /media/pablo/data1/Emily/genomes/VG1_assembly/VG2_canu_purged_purged_ragtag.scaffold.fasta.masked.nosemicolon  File was written to /media/pablo/data1/Emily/genomes/VG1_assembly/gmap//viridula_masked/viridula_masked.salcpchilddc```
+```gmap_build -d viridula_masked -D /{PWD}/VG2_canu_purged_purged_ragtag.scaffold.fasta.masked.nosemicolon  File was written to /{PWD}/viridula_masked.fasta```
 ###### Align transcripts with output to .sam
-```gmap -D /media/pablo/data1/emily/genomes/VG1_assembly/gmap/ -d viridula_masked -B 5 -t 10 --input-buffer-size=1000000 --output-buffer-size=1000000 -f samse /media/pablo/data1/emily/genomes/VG1_assembly/transcriptomes/transcriptome2/Ensamble_s_viridula_31_y_143.fasta > viridula_masked.nosemicolon.transcriptome2.sam```
+```gmap -D /{PWD}/gmap/ -d viridula_masked -B 5 -t 10 --input-buffer-size=1000000 --output-buffer-size=1000000 -f samse /{PWD}/Ensamble_s_viridula_31_y_143.fasta > viridula_masked.nosemicolon.transcriptome2.sam```
 ###### Use samtools (installed in another conda env) to convert from .sam to .bam
 ```conda activate samtools_blast```
 ```samtools view -S -b viridula_masked.nosemicolon.transcriptome2.sam > viridula_masked.nosemicolon.transcriptome2.bam```
@@ -104,21 +104,21 @@ Install cd-hit via conda
 First install RepeatModeler and all associated software. Installation via conda didn't work, had to install manually. Installation takes a long time, many dependencies. See [this tutorial](https://darencard.net/blog/2022-10-13-install-repeat-modeler-masker/) for installation guide.
 
 ##### Build database for repeat modeling
-```nohup /home/pablo/anaconda2/envs/repeatmodeler02/repeat-annotation/RepeatModeler-2.0.3/BuildDatabase -name viridula /media/pablo/data1/emily/genomes/VG1_assembly/VG2_canu_purged_purged_ragtag.scaffold.fasta```
+```nohup ~/envs/repeatmodeler02/repeat-annotation/RepeatModeler-2.0.3/BuildDatabase -name viridula /{PWD}/VG2_canu_purged_purged_ragtag.scaffold.fasta```
 This is quite fast, it is basically indexing the reference genome
 
 ##### Run RepeatModeler
-```nohup /home/pablo/anaconda2/envs/repeatmodeler02/repeat-annotation/RepeatModeler-2.0.3/RepeatModeler -pa 8 -database viridula &```
+```nohup ~/RepeatModeler-2.0.3/RepeatModeler -pa 8 -database viridula &```
 This takes a long time... 72+hr to run
 Important output files are viridula-families.fa and viridula-families.stk
 
 ##### Run RepeatClassifier
-```nohup /home/pablo/anaconda2/envs/repeatmodeler02/repeat-annotation/RepeatModeler-2.0.3/RepeatClassifier -consensi viridula-families.fa -stockholm viridula-families.stk -engine ncbi &```
+```nohup ~/RepeatModeler-2.0.3/RepeatClassifier -consensi viridula-families.fa -stockholm viridula-families.stk -engine ncbi &```
 This takes 12-24hr.
 Important output files are viridula-families-classified.stk and viridula-families.fa.classified
 
 ##### Run RepeatMasker
-```nohup /home/pablo/anaconda2/envs/repeatmodeler02/repeat-annotation/RepeatMasker/RepeatMasker -pa 8 -lib /media/pablo/data1/emily/genomes/VG1_assembly/repeatmask04/viridula-families.fa.classified /media/pablo/data1/emily/genomes/VG1_assembly/VG2_canu_purged_purged_ragtag.scaffold.fasta -dir softmask_viridula -xsmall -poly &```
+```nohup ~/RepeatMasker -pa 8 -lib /{PWD}/repeatmask04/viridula-families.fa.classified /{PWD}/VG2_canu_purged_purged_ragtag.scaffold.fasta -dir softmask_viridula -xsmall -poly &```
 output files are placed in folder softmask_viridula. Most important output is the .tbl file that contains a summary of the masked elements and .fasta.masked file that is genome assembly softmasked.
 This takes several hours to half a day.
 copy softmasked assembly to working directory for postprocessing.
@@ -155,35 +155,18 @@ Execute test script 2
 Execute test script 3
 ```bash test3.sh```
 ### STRUCTURAL ANNOTATION i.e. PROTEIN ID
-Was not able to solve errors trying to run braker from outside home directory. Sent a message to the author on github, waiting for fix.
 ```singularity exec braker3.sif braker.pl --species=Scurria_viridula05 --genome=VG2_canu_purged_purged_ragtag.scaffold.fasta.masked.nosemicolon --prot_seq=Ensamble_s_viridula_31_y_143.fasta.transdecoder_CDHIT_95_nospcharac2.faa --softmasking --workingdir=braker_14apr2023 --threads=15```
 BRAKER finishes correctly if braker.aa, braker.gtf, augustus.hints.aa, and augustus.gtf are created.
 ###### Count number of proteins recovered
 ```grep -c ">" augustus.hints.aa```
 ###### Run busco on augustus.hints.aa
 ```conda activate busco```
-```nohup busco -o VG2_busco_metazoa -i /media/pablo/disco1/pablo/scurria_genome_data/emily/viridula/braker_14apr2023/Augustus/augustus.hints.aa -l metazoa_odb10 -m proteins &```
+```nohup busco -o VG2_busco_metazoa -i /{PWD}/braker_14apr2023/Augustus/augustus.hints.aa -l metazoa_odb10 -m proteins &```
 Busco results in this case were C:96.8%, S:90.4%, D:6.4%
 Can also run busco metazoa to verify. 
 ### FUNCTIONAL ANNOTATION
-In brief, this step involves identifying functions and GO terms for the list of proteins recovered from BRAKER.If you do not already have a conda env for blast with blast installed, do so at this time.
-##### SwissProt database recovery
-I placed the databases in ~/miniconda3/envs/blast 
-```wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz```
-###### Unzip .fasta.gz
-```gunzip uniprot_sprot.fasta.gz```
-###### Index the database
-```makeblastdb -in uniprot_sprot.fasta -out uniprot_sprot -dbtype prot```
-##### Refseq database recovery
-I was not entirely sure which Refseq database to use. There are many... for invertebrates, all, bacteria, etc.  I chose the one labeled as "complete"
-```wget ftp://ftp.ncbi.nlm.nih.gov/refseq/release/complete/complete.1000.protein.faa.gz ```
-###### unzip the database
-```gunzip complete.1000.protein.faa.gz```
-###### Index the database
-```makeblastdb -in complete.1000.protein.faa -out refseq_complete_prot -dbtype prot```
-##### Blast proteins against db
-```nohup blastp -outfmt 6 -query /media/pablo/disco1/pablo/scurria_genome_data/emily/viridula/braker_14apr2023/Augustus/augustus.hints.aa -db uniprot_sprot -out /media/pablo/disco1/pablo/scurria_genome_data/emily/viridula/viridula_braker_14apr2023_augustushints.txt -num_threads 10 &```
-Output format selected based on that suggested by [AHRD](https://github.com/groupschoof/AHRD#21-ahrd-example-usages)
+In brief, this step involves identifying functions and GO terms for the list of proteins recovered from BRAKER.
+This was done with OmicsBox. https://www.biobam.com/omicsbox/
 
  
 
