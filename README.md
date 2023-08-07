@@ -1,2 +1,2 @@
-# Genome_assembly_annotation
+# Genome_assembly_structural-annotation
 Some notes for myself and others on assembly and annotation methods.
