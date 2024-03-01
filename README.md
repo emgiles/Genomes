@@ -13,10 +13,10 @@ Run assembly using fastq files using Canu
 .report gives statistics of the raw data and final assembly including N50s and length
 
 Run assembly using wtdbg2
-``nohup ./wtdbg2 -x sq -g 500m -t 16 -i ../folder/pacbio.fastq.gz -fo output_name```
+```nohup ./wtdbg2 -x sq -g 500m -t 16 -i ../folder/pacbio.fastq.gz -fo output_name```
 
 Assembly with finish creating a .ctg.lay.gz file that is approx 1-20G. Then use next step:
-``nohup ./wtpoa-cns -t 16 -i output_name.ctg.lay.gz -fo output_file_name.ctg.fa &```
+```nohup ./wtpoa-cns -t 16 -i output_name.ctg.lay.gz -fo output_file_name.ctg.fa &```
 
 ###### Check assembly with QUAST
 ```conda activate quast_purgedups_minimap```
