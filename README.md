@@ -173,4 +173,4 @@ Busco results in this case were C:96.8%, S:90.4%, D:6.4%
 Can also run busco metazoa to verify. 
 ### FUNCTIONAL ANNOTATION
 In brief, this step involves identifying functions and GO terms for the list of proteins recovered from BRAKER.
-This was done with OmicsBox. https://www.biobam.com/omicsbox/
+This can be done with OmicsBox https://www.biobam.com/omicsbox/ or alternatively with B2Go standalone but apparently it is very slow without DiamondBlast.
