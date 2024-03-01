@@ -4,23 +4,30 @@
 Create working directory with sequence files
 Unzip fastq.gz subread files
 ### GENOME ASSEMBLY
-Canu took several hours to run a machine with 16 cores
+I have used Canu and wtdbg2. Both take several hours to run assembly with PacBio data and using 16 cores (genome size approx 500M).
 Run assembly using fastq files using Canu
 ```canu  -p project_prefix -d project_directory genomeSize=500m -pacbio pacbio_file.fastq```
 .contigs.fasta is final filtered assembly results for diploid genomes
 .unitigs.fasta is file that includes all alternative paths
 .unassembled.fasta is a file of contigs with poor support
 .report gives statistics of the raw data and final assembly including N50s and length
+
+Run assembly using wtdbg2
+``nohup ./wtdbg2 -x sq -g 500m -t 16 -i ../folder/pacbio.fastq.gz -fo output_name```
+
+Assembly with finish creating a .ctg.lay.gz file that is approx 1-20G. Then use next step:
+``nohup ./wtpoa-cns -t 16 -i output_name.ctg.lay.gz -fo output_file_name.ctg.fa &```
+
 ###### Check assembly with QUAST
 ```conda activate quast_purgedups_minimap```
-```nohup quast -r /{PWD}/Sscurra_genome.fasta -s -e --large -k -f -b VG2_canu_assembly.contigs.fasta & ```
-Compare results to S. scurra assembly
+```nohup quast -r /{PWD}/reference_genome.fasta -s -e --large -k -f -b new_assembly.contigs.fasta & ```
+Compare results to reference assembly
 Output is report.pdf
 
 ###### Check assembly with BUSCO
 This example uses the mollusca database from ncbi. Also try with metazoa db.
 ```conda activate busco```
-```nohup busco -o VG2_busco_mollusca -i /{PWD}/VG2_canu_assembly.contigs.fasta -l mollusca_odb10 -m genome & ```
+```nohup busco -o VG2_busco_mollusca -i /{PWD}/new_assembly.contigs.fasta -l mollusca_odb10 -m genome & ```
 
 ### GENOME ASSEMBLY POST-PROCESSING
 ##### Remove duplications with purge_dups
@@ -30,33 +37,33 @@ Note, this software is difficult to install and run due to minimal documentation
 
 ##### Check purged assembly with QUAST
 ```conda activate quast_purgedups_minimap```
-```/home/pablo/anaconda2/envs/emily/bin/quast -r /{PWD}/Sscurra_genome.fasta -s -e --large -k VG2_canu_purged_purged.fa```
-comparing to S. scurra
+```/home/pablo/anaconda2/envs/emily/bin/quast -r /{PWD}/reference_genome.fasta -s -e --large -k new_assembly.contigs_purged_purged.fa```
+compare to reference
 output is report.pdf
 
 ##### Check purged assembly with BUSCO
 ```conda activate busco```
-```nohup busco -o VG2_busco_mollusca -i /{PWD}/VG2_canu_purged_purged.fa -l mollusca_odb10 -m genome &```
+```nohup busco -o VG2_busco_mollusca -i /{PWD}/new_assembly.contigs_purged_purged.fa -l mollusca_odb10 -m genome &```
 using mollusca db
 
 ##### Scaffold with RAGTAG
 ```conda activate ragtag_blobtools_bwa```
-```nohup ragtag.py scaffold /{PWD}/Sscurra_genome.fasta /{PWD}/purged.fa &```
-using S. scurra as a reference
+```nohup ragtag.py scaffold /{PWD}/reference_genome.fasta /{PWD}/new_assembly.contigs_purged_purged.fa &```
+using closely related species as a reference
 
 ###### Checking purged scaffolded assembly with QUAST
 ```conda activate quast_purgedups_minimap```
-```nohup quast -r /{PWD}/Sscurra_genome.fasta -e --large -k -f -b /{PWD}/ragtag.scaffold.fasta &```
+```nohup quast -r /{PWD}/Sscurra_genome.fasta -e --large -k -f -b /{PWD}/new_assembly.contigs_purged_purged.ragtag.scaffold.fasta &```
 
 ###### Checking purged scaffolded assembly with BUSCO
 ```conda activate busco```
-```nohup busco -o VG2_busco_mollusca -i /{PWD}/VG2_canu_purged_purged_ragtag.scaffold.fasta -l mollusca_odb10 -m genome &``` 
-```nohup busco -o VG2_busco_metazoa -i /{PWD}/VG2_canu_purged_purged_ragtag.scaffold.fasta -l metazoa_odb10 -m genome &```
+```nohup busco -o VG2_busco_mollusca -i /{PWD}/new_assembly.contigs_purged_purged.ragtag.scaffold.fasta -l mollusca_odb10 -m genome &``` 
+```nohup busco -o VG2_busco_metazoa -i /{PWD}/new_assembly.contigs_purged_purged.ragtag.scaffold.fasta -l metazoa_odb10 -m genome &```
 
 ### TRANSCRIPTOME AND PROTEIN LIST RECOVERY
 ##### Upload transcriptomes and check with busco
 ```conda activate busco```
-```nohup busco -o SV_trinity_metazoa -i /{PWD}/Ensamble_transcriptoma_SViridula.fasta -l metazoa_odb10 -m transcriptome &```
+```nohup busco -o species_trinity_metazoa -i /{PWD}/Ensamble_transcriptoma_SViridula.fasta -l metazoa_odb10 -m transcriptome &```
 Should have high busco completeness. Duplications can be moderately high.
 ##### Check quality of raw reads
 ```conda activate fastqc```
